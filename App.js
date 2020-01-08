@@ -1,32 +1,39 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, Button, View } from 'react-native';
+import { StyleSheet, View, FlatList, Button } from 'react-native';
+
+import GoalItem from './components/GoalItem';
+import GoalInputModal from './components/GoalInputModal';
 
 export default function App() {
-  const [enteredGoal, setEnteredGoal] = useState('');
   const [goalsList, setGoalsList] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const addGoalHandler = () => {
-    setGoalsList([...goalsList, enteredGoal]);
+  const onAddGoal = value => {
+    setGoalsList([...goalsList, { key: Math.random().toString(), value }]);
+  };
+
+  const onDeleteGoal = goalKey => {
+    setGoalsList(goalsList.filter(goal => goal.key !== goalKey));
   };
 
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Course Goal"
-          style={styles.input}
-          onChangeText={setEnteredGoal}
-          value={enteredGoal}
-        />
-        <Button title="ADD" onPress={addGoalHandler} />
-      </View>
-      <View>
-        {goalsList.map((goal, index) => (
-          <View key={index}>
-            <Text>{goal}</Text>
-          </View>
-        ))}
-      </View>
+      <Button
+        title="Add new goal"
+        onPress={() => setModalVisible(true)}
+        style={styles.addButton}
+      />
+      <GoalInputModal
+        onAddGoal={onAddGoal}
+        visible={modalVisible}
+        setVisible={setModalVisible}
+      />
+      <FlatList
+        data={goalsList}
+        renderItem={itemData => (
+          <GoalItem item={itemData.item} onDeleteGoal={onDeleteGoal} />
+        )}
+      />
     </View>
   );
 }
@@ -35,16 +42,7 @@ const styles = StyleSheet.create({
   screen: {
     padding: 50,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  input: {
-    borderBottomColor: 'black',
-    borderBottomWidth: 1,
-    paddingBottom: 10,
-    flex: 1,
-    marginRight: 10,
+  addButton: {
+    marginBottom: 30,
   },
 });
